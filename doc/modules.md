@@ -1,4 +1,4 @@
-[react-route-type](README.md) / Modules
+[react-route-type](README.md) / Exports
 
 # react-route-type
 
@@ -6,6 +6,7 @@
 
 ### Interfaces
 
+- [Options](interfaces/Options.md)
 - [Route](interfaces/Route.md)
 
 ### Type aliases
@@ -30,27 +31,27 @@
 
 #### Defined in
 
-[interfaces/types.ts:46](https://github.com/hosseinmd/react-route-type/blob/6c02ce4/src/interfaces/types.ts#L46)
+[interfaces/types.ts:66](https://github.com/hosseinmd/react-route-type/blob/3deaec5/src/interfaces/types.ts#L66)
 
 ## Functions
 
 ### route
 
-▸ **route**<`T`, `Q`\>(`pathParts`, `queryParams?`): [`Route`](interfaces/Route.md)<`T`, `Q`\>
+▸ `Const` **route**<`T`, `Q`\>(`path`, `option?`): [`Route`](interfaces/Route.md)<`T`, `Q`\>
 
 #### Type parameters
 
 | Name | Type |
 | :------ | :------ |
 | `T` | extends `string` |
-| `Q` | extends `string` |
+| `Q` | extends `QueryParamDefault` |
 
 #### Parameters
 
-| Name | Type | Default value |
-| :------ | :------ | :------ |
-| `pathParts` | `T`[] | `undefined` |
-| `queryParams` | `Q`[] | `[]` |
+| Name | Type |
+| :------ | :------ |
+| `path` | `T` \| `T`[] |
+| `option?` | [`Options`](interfaces/Options.md)<`Q`\> |
 
 #### Returns
 
@@ -58,4 +59,4 @@
 
 #### Defined in
 
-[route.ts:26](https://github.com/hosseinmd/react-route-type/blob/6c02ce4/src/route.ts#L26)
+[route.ts:155](https://github.com/hosseinmd/react-route-type/blob/3deaec5/src/route.ts#L155)

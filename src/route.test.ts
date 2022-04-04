@@ -28,22 +28,17 @@ enum RouteNames {
 const Routes = {
   [RouteNames.HOME]: route("home"),
   [RouteNames.VIEW]: route("view"),
-  [RouteNames.VIEW_DETAILS]: route({ path: ["view", ":id"] }),
-  [RouteNames.VIEW_MORE_DETAILS]: route({
-    path: ["view", ":id", "more", ":otherId"],
-  }),
-  [RouteNames.ONLY_PARAM]: route({ path: ":param" }),
-  [RouteNames.WITH_QUERY]: route({ path: ":id", query: { dateCreated: "" } }),
-  [RouteNames.EMPTY_QUERY]: route({ path: [":id"] }),
-  [RouteNames.MULTI_CALL_QUERY]: route({
-    path: [":id"],
+  [RouteNames.VIEW_DETAILS]: route(["view", ":id"]),
+  [RouteNames.VIEW_MORE_DETAILS]: route(["view", ":id", "more", ":otherId"]),
+  [RouteNames.ONLY_PARAM]: route(":param"),
+  [RouteNames.WITH_QUERY]: route(":id", { query: { dateCreated: "" } }),
+  [RouteNames.EMPTY_QUERY]: route([":id"]),
+  [RouteNames.MULTI_CALL_QUERY]: route([":id"], {
     query: { dateCreated: "", dateUpdated: "" },
   }),
-  [RouteNames.MULTI_QUERY]: route({
-    path: "home",
+  [RouteNames.MULTI_QUERY]: route("home", {
     query: { dateCreated: "" as string | null },
-  }).route({
-    path: ":id",
+  }).route(":id", {
     query: { dateUpdated: "" },
   }),
 };
@@ -67,6 +62,24 @@ describe("Route", () => {
         expectedTemplate[k as keyof typeof expectedTemplate]
       );
     });
+
+    expect(Routes[RouteNames.HOME].template()).toBe("/home");
+  });
+
+  test("Nested", () => {
+    const home = route("home").createNestedRoutes((parent) => ({
+      view: parent.route("view").createNestedRoutes((parent) => ({
+        notif: parent.route("notif"),
+      })),
+      dashboard: parent.route("dashboard"),
+    }));
+    expect(home.root.template()).toBe("/home/*");
+    expect(home.dashboard.template()).toBe("dashboard");
+    expect(home.view.root.template()).toBe("view/*");
+    expect(home.view.notif.route("details").template()).toBe("notif/details");
+    expect(home.view.root.route(["details", ":id"]).template()).toBe(
+      "details/:id"
+    );
   });
 
   test("Create", () => {
@@ -151,10 +164,12 @@ describe("Route", () => {
   });
 });
 
-const tsRoute = route({ path: ["home", ":id"], query: { search: "" } }).route({
-  path: ["list", ":name"],
-  query: { type: "" },
-});
+const tsRoute = route(["home", ":id"], { query: { search: "" } }).route(
+  ["list", ":name"],
+  {
+    query: { type: "" },
+  }
+);
 
 function Comp() {
   const { id, name } = tsRoute.useParams();

@@ -1,6 +1,6 @@
 # react-route-type
 
-A collection of types and utility functions to facilitate typesafe routing in React-Router.
+A collection of types and utility functions to facilitate typesafe routing in react-router-dom and react-router-native.
 
 npm
 
@@ -16,10 +16,10 @@ yarn
 import { route } from "react-route-type";
 
 export const Routes = {
-  home: route({ path: ["home"] }),
-  view: route({ path: ["view"] }),
-  details: route({ path: ["view", ":id"] }),
-  users: route({ path: ["users"], query: { search: "" } }),
+  home: route("home"),
+  view: route("view"),
+  details: route(["view", ":id"]),
+  users: route("users", { query: { search: "" } }),
 };
 
 const viewDetailsTemplate = Routes.details.template(); // -> /view/:id
@@ -61,10 +61,10 @@ Params is required
 
 ```js
 export const Routes = {
-  details: route({ path: ["view", ":id"] }),
+  details: route(["view", ":id"]),
 };
 
-// route
+// "/view/:id"
 <Route path={Routes.details.template()} component={Details} />;
 
 export const Details = () => {
@@ -85,8 +85,7 @@ export const View = () => {
 With Default value
 
 ```js
-const users = route({
-  path: ["users"],
+const users = route(["users"], {
   query: { withDefault: "default" },
 });
 
@@ -95,4 +94,69 @@ export const Users = () => {
 
   /// withDefault === "default" is true
 };
+```
+
+## Nested routes
+
+```js
+const home = route("home");
+const settings = route("settings").createNestedRoutes((parent)=>({
+   global: parent.route("global");
+   advanced: parent.route("advanced");
+}));
+
+// App.js
+function App() {
+  return (
+    <Routes>
+      <Route
+        path={home.template()} // "/home"
+        element={<Home />}
+      />
+      <Route
+        path={settings.root.template()} // "/settings/*"
+        element={<Settings />}
+      />
+    </Routes>
+  );
+}
+
+// Settings.js
+function Settings() {
+  return (
+    <Container>
+      <Conversations />
+
+      <Routes>
+        <Route
+          path={setting.global.template()} // "global"
+          element={<Global />}
+        />
+        <Route
+          path={setting.advanced.template()} // "advanced"
+          element={<Advanced />}
+        />
+      </Routes>
+    </Container>
+  );
+}
+```
+
+### useMap
+
+This is useful for create breadcrumb
+
+```js
+const routeMap = setting.advanced.useMap(); // [{path:"settings",create=()=>"/settings"},{path:"advanced",create=()=>"/settings/advanced"}]
+
+return (
+  //antd
+  <Breadcrumb>
+    {routeMap.map(({ path, create }) => {
+      <Breadcrumb.Item key={path}>
+        <a href={create()}></a>
+      </Breadcrumb.Item>;
+    })}
+  </Breadcrumb>
+);
 ```
