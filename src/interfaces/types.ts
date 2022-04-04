@@ -48,7 +48,9 @@ export interface Route<
   useQueryParams(): Partial<QueryParams>;
 
   useParams(): Required<Params<PathParam<Parts>>>;
-  useCreate(createParams: PathParam<Parts>): CreateFun<Parts, QueryParams>;
+  useCreate<T1 extends PathParam<Parts>>(
+    createParams: T1[]
+  ): CreateFun<Exclude<Parts, `:${T1}`>, QueryParams>;
   useMap(): {
     path: string | string[];
     title?: string;
@@ -84,3 +86,11 @@ export type CreateFun<
       }
     ) => string
   : (params?: { query?: Partial<QueryParams> }) => string;
+
+type Mamad = ":ali" | ":mamad" | "hassan";
+
+type A = Exclude<
+  PathParam<Mamad> extends `:${infer A}` ? "mamad" : never,
+  "ali"
+>;
+type ExcludeNever<T> = T extends never ? "" : T;

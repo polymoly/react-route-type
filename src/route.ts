@@ -28,14 +28,14 @@ const __DEV__ = process.env.NODE_ENV !== "production";
 
 interface InternalOptions<Q extends QueryParamDefault> extends Options<Q> {
   relatedFrom?: number;
-  parent?: InternalRoute<string, any>;
+  parent?: InternalRoute<any, any>;
 }
 
 interface InternalRoute<T extends string, Q extends QueryParamDefault>
   extends Route<T, Q> {
   path: T[] | T;
   option: InternalOptions<Q>;
-  parent?: InternalRoute<string, any>;
+  parent?: InternalRoute<any, any>;
 }
 
 function internalRoute<T extends string, Q extends QueryParamDefault>(
@@ -96,13 +96,13 @@ function internalRoute<T extends string, Q extends QueryParamDefault>(
     useCreate(createParams) {
       const params = result.useParams();
 
-      const _params = Object.keys(createParams || {}).map((key) => {
-        return params[key as keyof typeof params];
-      });
+      const _params = createParams.reduce((pre, key) => {
+        return { ...pre, [key]: params[key] };
+      }, {});
 
-      return ((param) => {
+      return ((param: any) => {
         return result.create({ ..._params, ...param });
-      }) as CreateFun<T, Q>;
+      }) as any;
     },
     route(_path, options = {}) {
       const { query: _query, title } = options;
@@ -141,7 +141,7 @@ function internalRoute<T extends string, Q extends QueryParamDefault>(
       const match = result.useParams();
 
       function generateMap(
-        _routes?: InternalRoute<string, any>
+        _routes?: InternalRoute<any, any>
       ): ReturnType<InternalRoute<T, Q>["useMap"]> {
         if (!_routes) {
           return [];
