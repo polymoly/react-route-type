@@ -13,7 +13,12 @@ import { useLocation, useParams } from "react-router-dom";
    limitations under the License.
  */
 
-import { GetParam, QueryParamDefault, Route } from "./interfaces/types";
+import {
+  CreateFun,
+  GetParam,
+  QueryParamDefault,
+  Route,
+} from "./interfaces/types";
 import { isParam } from "./interfaces/guards";
 import { stringify } from "qs";
 import { useMemo } from "react";
@@ -47,12 +52,11 @@ export function route<T extends string, Q extends QueryParamDefault>(
       );
     }
   }
-
-  return {
+  const returnValues: Route<T, Q> = {
     template: () => {
       return getPathBegin(paths) + paths.join("/");
     },
-    create: (params: Record<any, any> = {}) => {
+    create: ((params = {}) => {
       const baseUrl =
         getPathBegin(paths) +
         paths
@@ -61,7 +65,7 @@ export function route<T extends string, Q extends QueryParamDefault>(
               return location.pathname;
             }
             if (isParam(part)) {
-              return params[(part as string).slice(1)];
+              return params[(part as string).slice(1) as keyof typeof params];
             }
             return part;
           })
@@ -73,8 +77,19 @@ export function route<T extends string, Q extends QueryParamDefault>(
           : stringify(params.query, { encode: false });
 
       return queryString ? `${baseUrl}?${queryString}` : baseUrl;
-    },
+    }) as CreateFun<T, Q>,
 
+    useCreate(createParams) {
+      const params = returnValues.useParams();
+
+      const _params = Object.keys(createParams || {}).map((key) => {
+        return params[key as keyof typeof params];
+      });
+
+      return ((param) => {
+        return returnValues.create({ ..._params, ...param });
+      }) as CreateFun<T, Q>;
+    },
     route(_param) {
       const { path: _path, query: _query } =
         typeof _param === "string" || Array.isArray(_param)
@@ -107,4 +122,5 @@ export function route<T extends string, Q extends QueryParamDefault>(
       return useParams<GetParam<T>>();
     },
   };
+  return returnValues;
 }

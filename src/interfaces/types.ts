@@ -34,6 +34,7 @@ export interface Route<
   useQueryParams(): Partial<QueryParams>;
 
   useParams(): Params<GetParam<Parts>>;
+  useCreate(createParams: GetParam<Parts>): CreateFun<Parts, QueryParams>;
 }
 
 /**
