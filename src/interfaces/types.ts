@@ -86,11 +86,3 @@ export type CreateFun<
       }
     ) => string
   : (params?: { query?: Partial<QueryParams> }) => string;
-
-type Mamad = ":ali" | ":mamad" | "hassan";
-
-type A = Exclude<
-  PathParam<Mamad> extends `:${infer A}` ? "mamad" : never,
-  "ali"
->;
-type ExcludeNever<T> = T extends never ? "" : T;
